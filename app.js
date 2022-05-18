@@ -135,6 +135,7 @@ const Otpservice = require("./controllers/otp.verifier");
 //   };
 //   data.append("fileData", newFile);
 // });
+app.get('/', (req,res)=>{res.json('the application is working properly')})
 
 app.post("/app/ad/thumbnail", thumbupload.single("fileData"), (req, res) => {
   res.json(req.file.filename);
