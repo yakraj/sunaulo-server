@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require("axios");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const knex = require("knex");
@@ -12,6 +13,7 @@ const bcrypt = require("bcrypt-nodejs");
 const uniqid = require("uniqid");
 const { Client } = require("@googlemaps/google-maps-services-js");
 const knexPostgis = require("knex-postgis");
+var unirest = require("unirest");
 
 // const socket = require('./controllers/sockettrial')
 
@@ -63,15 +65,60 @@ var regupload = multer({ storage: regstorage });
 var thumbupload = multer({ storage: thumbstorage });
 // var upload = multer({ dest: 'uploads/' });
 
+// const db = knex({
+//   client: "pg",
+//   connection: {
+//     host: "127.0.0.1",
+//     user: "postgres",
+//     password: "yakraj",
+//     database: "neplx-app",
+//   },
+// });
+
+// const db = async (config) => {
+//   return knex({
+//     client: "pg",
+//     connection: {
+//       host: "/cloudsql/sunaulo:asia-south1:sunaulo",
+//       user: "postgres",
+//       password: "daylightsunaulo651@",
+//       database: "postgres",
+//     },
+//   });
+// };
+
+// const dbSocketPath = process.env.DB_SOCKET_PATH || "/cloudsql";
+// const KNEX_CON = {
+//   socketPath: `/cloudsql/sunaulo:asia-south1:sunaulo-server`,
+//   user: "sunaulo",
+//   password: "sunaulo289@",
+//   database: "sunaulo",
+// };
+
+// const db = knex({
+//   client: "pg",
+//   connection: KNEX_CON,
+// });
+const KNEX_CON = {
+  host: "/cloudsql/sunaulo-database:asia-south1:sunaulo-database",
+  user: "postgres",
+  password: "daylightsunaulo289@",
+  database: "postgres",
+};
+
 const db = knex({
   client: "pg",
-  connection: {
-    host: "127.0.0.1",
-    user: "postgres",
-    password: "yakraj",
-    database: "neplx-app",
-  },
+  connection: KNEX_CON,
 });
+// const db = knex({
+//   client: "pg",
+//   connection: {
+//     host: "/cloudsql/sunaulo:asia-south1:sunaulo",
+//     user: "postgres",
+//     password: "daylightsunaulo651@",
+//     database: "postgres",
+//   },
+// });
 const st = knexPostgis(db);
 
 // const db = knex({
@@ -135,7 +182,40 @@ const Otpservice = require("./controllers/otp.verifier");
 //   };
 //   data.append("fileData", newFile);
 // });
-app.get('/', (req,res)=>{res.json('the application is working properly')})
+app.get("/", (req, res) => {
+  res.json("the application is working properly");
+});
+
+app.get("/otp", (req, res) => {
+  // var req = unirest("GET", "https://www.fast2sms.com/dev/bulkV2");
+  // req.query({
+  //   authorization:
+  //     "KLF32bSuRJ9eBpwsZdQ4fWaGV6HhDtog7CTY5UjlEiX0mIyvnc1k9HQbtMX6zpi4cIdgaqBNxG7j5sYm",
+  //   variables_values: "5599",
+  //   route: "otp",
+  //   numbers: "7709543082,7709522405",
+  // });
+  // req.headers({
+  //   "cache-control": "no-cache",
+  // });
+  // req.end(function (ress) {
+  //   if (res.error) throw new Error(res.error);
+  //   res.json(ress);
+  //   console.log(ress.body);
+  // });
+});
+
+app.get(`/data/:id`, (req, res) => {
+  db.select("*")
+    .from(req.params.id)
+    .then((response) => res.json(response));
+});
+
+app.get("/data", (req, res) => {
+  db.select("*")
+    .from("test")
+    .then((ress) => res.json(ress));
+});
 
 app.post("/app/ad/thumbnail", thumbupload.single("fileData"), (req, res) => {
   res.json(req.file.filename);
