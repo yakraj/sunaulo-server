@@ -95,10 +95,10 @@ var thumbupload = multer({ storage: thumbstorage });
 //   database: "sunaulo",
 // };
 
-// const db = knex({
-//   client: "pg",
-//   connection: KNEX_CON,
-// });
+const db = knex({
+  client: "pg",
+  connection: KNEX_CON,
+});
 const KNEX_CON = {
   host: "/cloudsql/sunaulo-database:asia-south1:sunaulo-database",
   user: "postgres",
@@ -106,10 +106,10 @@ const KNEX_CON = {
   database: "postgres",
 };
 
-const db = knex({
-  client: "pg",
-  connection: KNEX_CON,
-});
+// const db = knex({
+//   client: "pg",
+//   connection: KNEX_CON,
+// });
 // const db = knex({
 //   client: "pg",
 //   connection: {
@@ -290,7 +290,7 @@ app.post("/autocomplete", googleApi.MapHandler(db, client));
 app.post("/placelatlong", googleApi.PlaceLatLong(db, client));
 app.post("/locationplacename", googleApi.LocationDetails(db, client));
 app.post("/placeuser", googleApi.AutocompleteDtails(db, client));
-app.post("/otp/send", Otpservice.otpsender());
+app.post("/otp/send", Otpservice.otpsender(axios));
 app.post("/otp/verify", Otpservice.otpVerification());
 app.post("/web/product/info", (req, res) => {
   db.select("address", "price", "title")
