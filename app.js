@@ -94,17 +94,16 @@ var thumbupload = multer({ storage: thumbstorage });
 //   password: "sunaulo289@",
 //   database: "sunaulo",
 // };
-
-const db = knex({
-  client: "pg",
-  connection: KNEX_CON,
-});
 const KNEX_CON = {
   host: "/cloudsql/sunaulo-database:asia-south1:sunaulo-database",
   user: "postgres",
   password: "daylightsunaulo289@",
   database: "postgres",
 };
+const db = knex({
+  client: "pg",
+  connection: KNEX_CON,
+});
 
 // const db = knex({
 //   client: "pg",
