@@ -13,7 +13,7 @@ const bcrypt = require("bcrypt-nodejs");
 const uniqid = require("uniqid");
 const { Client } = require("@googlemaps/google-maps-services-js");
 const knexPostgis = require("knex-postgis");
-var unirest = require("unirest");
+// var unirest = require("unirest");
 
 // const socket = require('./controllers/sockettrial')
 
