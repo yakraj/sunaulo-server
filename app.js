@@ -13,9 +13,25 @@ const bcrypt = require("bcrypt-nodejs");
 const uniqid = require("uniqid");
 const { Client } = require("@googlemaps/google-maps-services-js");
 const knexPostgis = require("knex-postgis");
+const multerGoogleStorage = require("multer-google-storage");
 // var unirest = require("unirest");
 
 // const socket = require('./controllers/sockettrial')
+
+const gooleStorage = multer({
+  storage: multerGoogleStorage.storageEngine({
+    autoRetry: true,
+    bucket: "sunaulo-database.appspot.com",
+    projectId: "sunaulo-database",
+    keyFilename: "./sunaulo-database-25292fa50538.json",
+    filename: function (req, file, cb) {
+      cb(null, file.originalname + "-" + Date.now() + ".png");
+      // let extArray = file.mimetype.split("/");
+      // let extension = extArray[extArray.length - 1];
+      // cb(null, Date.now() + "-" + file.originalname);
+    },
+  }),
+});
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -229,9 +245,14 @@ app.post(
   regupload.single("fileData"),
   regUser.registerhandler(db, uniqid, bcrypt)
 );
+// app.post(
+//   "/updateavatar",
+//   regupload.single("fileData"),
+//   Avatarupdate.updateavatar(db, uniqid, bcrypt)
+// );
 app.post(
   "/updateavatar",
-  regupload.single("fileData"),
+  gooleStorage.single("fileData"),
   Avatarupdate.updateavatar(db, uniqid, bcrypt)
 );
 app.post("/update/user/name", Avatarupdate.updateName(db, uniqid, bcrypt));
