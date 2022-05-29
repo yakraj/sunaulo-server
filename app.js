@@ -18,10 +18,38 @@ const multerGoogleStorage = require("multer-google-storage");
 
 // const socket = require('./controllers/sockettrial')
 
-const gooleStorage = multer({
+const UpdateImage = multer({
   storage: multerGoogleStorage.storageEngine({
     autoRetry: true,
     bucket: "sunauloo.com",
+    projectId: "sunaulo-database",
+    keyFilename: "./sunaulo-database-25292fa50538.json",
+    filename: function (req, file, cb) {
+      cb(null, file.originalname + "-" + Date.now() + ".png");
+      // let extArray = file.mimetype.split("/");
+      // let extension = extArray[extArray.length - 1];
+      // cb(null, Date.now() + "-" + file.originalname);
+    },
+  }),
+});
+const ProductThumbnail = multer({
+  storage: multerGoogleStorage.storageEngine({
+    autoRetry: true,
+    bucket: "post-thumbnail",
+    projectId: "sunaulo-database",
+    keyFilename: "./sunaulo-database-25292fa50538.json",
+    filename: function (req, file, cb) {
+      cb(null, file.originalname + "-" + Date.now() + ".png");
+      // let extArray = file.mimetype.split("/");
+      // let extension = extArray[extArray.length - 1];
+      // cb(null, Date.now() + "-" + file.originalname);
+    },
+  }),
+});
+const ProductImages = multer({
+  storage: multerGoogleStorage.storageEngine({
+    autoRetry: true,
+    bucket: "sunaulo-uploads",
     projectId: "sunaulo-database",
     keyFilename: "./sunaulo-database-25292fa50538.json",
     filename: function (req, file, cb) {
@@ -232,17 +260,22 @@ app.get("/data", (req, res) => {
     .then((ress) => res.json(ress));
 });
 
-app.post("/app/ad/thumbnail", thumbupload.single("fileData"), (req, res) => {
+
+
+// here it is
+app.post("/app/ad/thumbnail", ProductThumbnail.single("fileData"), (req, res) => {
   res.json(req.file.filename);
 });
+// here it is
 app.post(
   "/uploadimage",
-  upload.array("fileData", 12),
+  ProductImages.array("fileData", 12),
   ImageUpload.uploadImageHandler(db)
 );
+// here it is
 app.post(
   "/registeruser",
-  regupload.single("fileData"),
+  UpdateImage.single("fileData"),
   regUser.registerhandler(db, uniqid, bcrypt)
 );
 // app.post(
@@ -250,9 +283,10 @@ app.post(
 //   regupload.single("fileData"),
 //   Avatarupdate.updateavatar(db, uniqid, bcrypt)
 // );
+// here it is
 app.post(
   "/updateavatar",
-  gooleStorage.single("fileData"),
+  UpdateImage.single("fileData"),
   Avatarupdate.updateavatar(db, uniqid, bcrypt)
 );
 app.post("/update/user/name", Avatarupdate.updateName(db, uniqid, bcrypt));
