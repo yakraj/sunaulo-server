@@ -46,6 +46,7 @@ const ProductThumbnail = multer({
     },
   }),
 });
+
 const ProductImages = multer({
   storage: multerGoogleStorage.storageEngine({
     autoRetry: true,
