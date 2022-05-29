@@ -21,7 +21,7 @@ const multerGoogleStorage = require("multer-google-storage");
 const gooleStorage = multer({
   storage: multerGoogleStorage.storageEngine({
     autoRetry: true,
-    bucket: "sunaulo-database.appspot.com",
+    bucket: "sunauloo.com",
     projectId: "sunaulo-database",
     keyFilename: "./sunaulo-database-25292fa50538.json",
     filename: function (req, file, cb) {
