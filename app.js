@@ -110,74 +110,31 @@ var regupload = multer({ storage: regstorage });
 var thumbupload = multer({ storage: thumbstorage });
 // var upload = multer({ dest: 'uploads/' });
 
-// const db = knex({
-//   client: "pg",
-//   connection: {
-//     host: "127.0.0.1",
-//     user: "postgres",
-//     password: "yakraj",
-//     database: "neplx-app",
-//   },
-// });
-
-// const db = async (config) => {
-//   return knex({
-//     client: "pg",
-//     connection: {
-//       host: "/cloudsql/sunaulo:asia-south1:sunaulo",
-//       user: "postgres",
-//       password: "daylightsunaulo651@",
-//       database: "postgres",
-//     },
-//   });
-// };
-
-// const dbSocketPath = process.env.DB_SOCKET_PATH || "/cloudsql";
-// const KNEX_CON = {
-//   socketPath: `/cloudsql/sunaulo:asia-south1:sunaulo-server`,
-//   user: "sunaulo",
-//   password: "sunaulo289@",
-//   database: "sunaulo",
-// };
-const KNEX_CON = {
-  host: "/cloudsql/sunaulo-database:asia-south1:sunaulo-database",
-  user: "postgres",
-  password: "daylightsunaulo289@",
-  database: "postgres",
-};
 const db = knex({
   client: "pg",
-  connection: KNEX_CON,
+  connection: {
+    host: "127.0.0.1",
+    user: "postgres",
+    password: "yakraj",
+    database: "neplx-app",
+  },
 });
 
+// const KNEX_CON = {
+//   host: "/cloudsql/sunaulo-database:asia-south1:sunaulo-database",
+//   user: "postgres",
+//   password: "daylightsunaulo289@",
+//   database: "postgres",
+// };
 // const db = knex({
 //   client: "pg",
 //   connection: KNEX_CON,
 // });
-// const db = knex({
-//   client: "pg",
-//   connection: {
-//     host: "/cloudsql/sunaulo:asia-south1:sunaulo",
-//     user: "postgres",
-//     password: "daylightsunaulo651@",
-//     database: "postgres",
-//   },
-// });
+
+
 const st = knexPostgis(db);
 
-// const db = knex({
-// 	client: 'pg',
-// 	connection: {
-// 		connectionString: process.env.DATABASE_URL,
-//   ssl: {
-//     rejectUnauthorized: false
-//   }
-// 	}
-// });
 
-// process.env.GOOGLE_API_KEY='AIzaSyDnIdQcMk8G4yNNLvpSfe0Sfv5GZZsfSto'
-
-// const key = process.env.GOOGLE_API_KEY
 
 const app = express();
 
