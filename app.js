@@ -110,31 +110,28 @@ var regupload = multer({ storage: regstorage });
 var thumbupload = multer({ storage: thumbstorage });
 // var upload = multer({ dest: 'uploads/' });
 
-const db = knex({
-  client: "pg",
-  connection: {
-    host: "127.0.0.1",
-    user: "postgres",
-    password: "yakraj",
-    database: "neplx-app",
-  },
-});
-
-// const KNEX_CON = {
-//   host: "/cloudsql/sunaulo-database:asia-south1:sunaulo-database",
-//   user: "postgres",
-//   password: "daylightsunaulo289@",
-//   database: "postgres",
-// };
 // const db = knex({
 //   client: "pg",
-//   connection: KNEX_CON,
+//   connection: {
+//     host: "127.0.0.1",
+//     user: "postgres",
+//     password: "yakraj",
+//     database: "neplx-app",
+//   },
 // });
 
+const KNEX_CON = {
+  host: "/cloudsql/sunaulo-database:asia-south1:sunaulo-database",
+  user: "postgres",
+  password: "daylightsunaulo289@",
+  database: "postgres",
+};
+const db = knex({
+  client: "pg",
+  connection: KNEX_CON,
+});
 
 const st = knexPostgis(db);
-
-
 
 const app = express();
 
@@ -218,12 +215,14 @@ app.get("/data", (req, res) => {
     .then((ress) => res.json(ress));
 });
 
-
-
 // here it is
-app.post("/app/ad/thumbnail", ProductThumbnail.single("fileData"), (req, res) => {
-  res.json(req.file.filename);
-});
+app.post(
+  "/app/ad/thumbnail",
+  ProductThumbnail.single("fileData"),
+  (req, res) => {
+    res.json(req.file.filename);
+  }
+);
 // here it is
 app.post(
   "/uploadimage",
