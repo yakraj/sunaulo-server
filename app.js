@@ -110,26 +110,26 @@ var regupload = multer({ storage: regstorage });
 var thumbupload = multer({ storage: thumbstorage });
 // var upload = multer({ dest: 'uploads/' });
 
-// const db = knex({
-//   client: "pg",
-//   connection: {
-//     host: "127.0.0.1",
-//     user: "postgres",
-//     password: "yakraj",
-//     database: "neplx-app",
-//   },
-// });
-
-const KNEX_CON = {
-  host: "/cloudsql/sunaulo-database:asia-south1:sunaulo-database",
-  user: "postgres",
-  password: "daylightsunaulo289@",
-  database: "postgres",
-};
 const db = knex({
   client: "pg",
-  connection: KNEX_CON,
+  connection: {
+    host: "34.100.168.32",
+    user: "postgres",
+    password: "daylightsunaulo289@",
+    database: "sunaulo",
+  },
 });
+
+// const KNEX_CON = {
+//   host: "/cloudsql/sunaulo-database:asia-south1:sunaulo-database",
+//   user: "postgres",
+//   password: "daylightsunaulo289@",
+//   database: "postgres",
+// };
+// const db = knex({
+//   client: "pg",
+//   connection: KNEX_CON,
+// });
 
 const st = knexPostgis(db);
 
