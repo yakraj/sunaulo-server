@@ -113,10 +113,10 @@ var thumbupload = multer({ storage: thumbstorage });
 const db = knex({
   client: "pg",
   connection: {
-    host: "45.115.217.153",
+    host: "45.115.217.44",
     user: "postgres",
-    password: "daylightsunaulo289@",
-    database: "postgres",
+    password: "D@yl!g$t145%@",
+    database: "sunaulo",
   },
 });
 
