@@ -5,7 +5,7 @@ const MapHandler = (db, client) => (req, res) => {
         input: req.body.add,
         types: ["establishment", "geocode"],
         components: `country:np`,
-        key: "AIzaSyCuAuMuIJ5fH4S97zTzQg7jSazVTZVK5yg",
+        key: "AIzaSyAseuUOwq6TCtLcvozGfqJMGhYyAdEX9tg",
       },
     })
     .then((r) => {
@@ -54,7 +54,7 @@ const PlaceLatLong = (db, client) => (req, res) => {
       params: {
         place_id: placeid,
         fields: "geometry",
-        key: "AIzaSyCuAuMuIJ5fH4S97zTzQg7jSazVTZVK5yg",
+        key: "AIzaSyAseuUOwq6TCtLcvozGfqJMGhYyAdEX9tg",
       },
       // timeout: 1000, // milliseconds
     })
@@ -74,7 +74,7 @@ const LocationDetails = (db, client) => (req, res) => {
       params: {
         latlng: latlng,
         result_type: ["locality", "neighborhood", "park", "ward"],
-        key: "AIzaSyCuAuMuIJ5fH4S97zTzQg7jSazVTZVK5yg",
+        key: "AIzaSyAseuUOwq6TCtLcvozGfqJMGhYyAdEX9tg",
       },
       // timeout: 1000, // milliseconds
     })
@@ -96,7 +96,7 @@ const AutocompleteDtails = (db, client) => (req, res) => {
         fields: "address_components",
         components: `country:np`,
         result_type: ["locality", "neighborhood", "park", "ward"],
-        key: "AIzaSyCuAuMuIJ5fH4S97zTzQg7jSazVTZVK5yg",
+        key: "AIzaSyAseuUOwq6TCtLcvozGfqJMGhYyAdEX9tg",
       },
       // timeout: 1000, // milliseconds
     })
