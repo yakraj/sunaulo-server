@@ -12,7 +12,7 @@ const otpsender = (axios) => (req, res) => {
     MobileOtp = [...MobileOtp, { mobile: mobile, otp: val }];
   }
   // res.json('we have successfully send otp to this number' + mobile)
-console.log(MobileOtp);
+// console.log(MobileOtp);
   axios({
     method: "get",
     url: `https://www.fast2sms.com/dev/bulkV2?authorization=KLF32bSuRJ9eBpwsZdQ4fWaGV6HhDtog7CTY5UjlEiX0mIyvnc1k9HQbtMX6zpi4cIdgaqBNxG7j5sYm&variables_values=${MobileOtp[0].otp}&route=otp&numbers=${mobile}`,
@@ -20,7 +20,7 @@ console.log(MobileOtp);
   }).then(function (response) {
     // response.data.pipe(fs.createWriteStream('ada_lovelace.jpg'))
     res.json("successfully send otp");
-  });
+  }).catch(err => res.json('sms sending api is not working.'));
 };
 
 const otpVerification = () => (req, res) => {
@@ -31,7 +31,7 @@ const otpVerification = () => (req, res) => {
   // console.log(OtpFinder)
   if (OtpFinder) {
     if (OtpFinder.otp == otp) {
-      console.log(OtpFinder);
+      // console.log(OtpFinder);
       res.json(true);
       MobileOtp = MobileOtp.filter((x) => x.mobile !== mobile);
     } else {
