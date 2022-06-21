@@ -113,10 +113,12 @@ var thumbupload = multer({ storage: thumbstorage });
 const db = knex({
   client: "pg",
   connection: {
-    host: "45.115.217.235",
+    host: "45.115.217.182",
     user: "sunaulo",
     password: "D@yl!g$t145%@",
     database: "sunaulo",
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
   },
 });
 
@@ -257,6 +259,7 @@ app.post(
   UpdateImage.single("fileData"),
   Avatarupdate.updateavatar(db, uniqid, bcrypt)
 );
+app.post('/userAuth', Signinuser.userAuth(db))
 app.post("/update/user/name", Avatarupdate.updateName(db, uniqid, bcrypt));
 app.post("/update/user/mobile", Avatarupdate.updateMobile(db, uniqid, bcrypt));
 app.post("/update/user/location", Avatarupdate.updateLocation(db));

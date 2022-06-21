@@ -32,7 +32,33 @@ const NumberValidateHandler = (db)=> (req, res)=> {
 
 
 
+
+const userAuth = (db) => (req,res) =>{
+	db.select('mobile', 'password', 'username').from('usercrediantials').where('username', '=', req.body.user)
+	.then(data => {
+		// console.log(data)
+		          db.select(
+                "ui.firstname",
+                "ui.lastname",
+                "ui.address",
+                "ui.location",
+                "ui.image","ui.username",
+                "ucr.mobile"
+                ).from('userinfo as ui')
+            .leftJoin("usercrediantials as ucr", function () {
+      this.on("ucr.username", "ui.username");
+    })
+    .where("ui.username", data[0].username).then(respo => res.json(respo))
+			.catch(err => res.status(400).json('Invalid user'))
+		
+	}).catch(err => res.status(400).json('Invalid user'))
+
+}
+
+
+
 module.exports = {
 	signinhandler: signinhandler,
-	NumberValidateHandler:NumberValidateHandler
+	NumberValidateHandler:NumberValidateHandler,
+	userAuth:userAuth
 }
