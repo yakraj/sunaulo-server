@@ -18,6 +18,14 @@ const updateavatar = (db) => (req,res) => {
 	})
 }
 
+
+const MdPass = (db,bcrypt) => (req, res) => {
+    const hash = bcrypt.hashSync(req.body.pass);
+    db('usercrediantials').update({
+         password: hash
+    }).where('username',req.body.user).then(respo => res.json(respo))
+    .catch(err => res.status(404).json(err))
+}
 const updateName = (db)=> (req, res)=> {
 	db('userinfo').update({
 		firstname: req.body.firstname,
@@ -75,5 +83,6 @@ module.exports = {
 	updateavatar: updateavatar,
 	updateName:updateName,
 updateMobile:updateMobile,
-updateLocation:updateLocation
+updateLocation:updateLocation,
+MdPass:MdPass,
 }

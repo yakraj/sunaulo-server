@@ -113,7 +113,7 @@ var thumbupload = multer({ storage: thumbstorage });
 const db = knex({
   client: "pg",
   connection: {
-    host: "45.115.217.93", 
+    host: "45.115.217.93",
     user: "sunaulo",
     password: "D@yl!g$t145%@",
     database: "sunaulo",
@@ -121,7 +121,6 @@ const db = knex({
     connectionTimeoutMillis: 2000,
   },
 });
-
 
 // const db = knex({
 //   client: "pg",
@@ -165,7 +164,7 @@ const MessagePool = require("./controllers/chatting.longpoll");
 const Uiads = require("./controllers/getadsforuserui");
 const regUser = require("./controllers/register.user");
 const Signinuser = require("./controllers/signin.user");
-const Avatarupdate = require("./controllers/update.userinfo");
+const UpdateuserInfo = require("./controllers/update.userinfo");
 const TrxTry = require("./controllers/trxtry");
 const UserAds = require("./controllers/user.ads");
 const ProductLike = require("./controllers/product.like");
@@ -233,6 +232,7 @@ app.post(
   "/app/ad/thumbnail",
   ProductThumbnail.single("fileData"),
   (req, res) => {
+    console.log("request is reached to me");
     res.json(req.file.filename);
   }
 );
@@ -251,18 +251,21 @@ app.post(
 // app.post(
 //   "/updateavatar",
 //   regupload.single("fileData"),
-//   Avatarupdate.updateavatar(db, uniqid, bcrypt)
+//   UpdateuserInfo.updateavatar(db, uniqid, bcrypt)
 // );
 // here it is
 app.post(
   "/updateavatar",
   UpdateImage.single("fileData"),
-  Avatarupdate.updateavatar(db, uniqid, bcrypt)
+  UpdateuserInfo.updateavatar(db, uniqid, bcrypt)
 );
-app.post('/userAuth', Signinuser.userAuth(db))
-app.post("/update/user/name", Avatarupdate.updateName(db, uniqid, bcrypt));
-app.post("/update/user/mobile", Avatarupdate.updateMobile(db, uniqid, bcrypt));
-app.post("/update/user/location", Avatarupdate.updateLocation(db));
+app.post("/userAuth", Signinuser.userAuth(db));
+app.post("/update/user/name", UpdateuserInfo.updateName(db, uniqid, bcrypt));
+app.post(
+  "/update/user/mobile",
+  UpdateuserInfo.updateMobile(db, uniqid, bcrypt)
+);
+app.post("/update/user/location", UpdateuserInfo.updateLocation(db));
 app.post("/wiregisteruser", regUser.registerhandler(db, uniqid, bcrypt));
 app.post("/signinuser", Signinuser.signinhandler(db, bcrypt));
 app.post("/user/ads", UserAds.UserAdsHandler(db));
@@ -327,6 +330,7 @@ app.post("/web/product/info", (req, res) => {
 app.post("/geomakeloc", googleApi.CreateLocation(db, st));
 
 app.post("/getnearby", googleApi.Nearby(db, st));
+app.post("/modify-pass", UpdateuserInfo.MdPass(db, bcrypt));
 
 app.listen(process.env.PORT || 5001, () => {
   console.log(`app is running on port ${process.env.PORT}`);

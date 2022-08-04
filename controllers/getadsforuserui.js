@@ -25,6 +25,7 @@ const getUiads = (db, st) => (req, res) => {
         .then((response) => {
           res.json(response);
         })
+        .catch((err) => res.status(404).json("unable"))
     : res.json("unable");
 };
 

@@ -62,8 +62,9 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
     lattitude,
     longitude,
   } = req.body;
-
   uniqadid = uniqid.process(seller + price);
+
+  console.log(thumbnail);
 
   db.transaction((trx) =>
     trx
@@ -127,6 +128,7 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
       .into("archive")
       .returning("supercatogery")
       .then((ReturnSuper) => {
+        console.log("returning", ReturnSuper);
         if (ReturnSuper[0] === "houseapartment") {
           return trx("houseapartment")
             .insert({
