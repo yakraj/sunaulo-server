@@ -104,7 +104,7 @@ const thumbstorage = multer.diskStorage({
     // cb(null, Date.now() + ".jpg");
   },
 });
-
+// hello there
 var upload = multer({ storage: storage });
 var regupload = multer({ storage: regstorage });
 var thumbupload = multer({ storage: thumbstorage });
