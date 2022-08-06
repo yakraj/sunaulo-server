@@ -1,4 +1,5 @@
 const getAdshandler = (db, st) => (req, res) => {
+  const { lat, keyword, subcatogery, long, r, offset } = req.body;
   // const { keyword, subcatogery, distance } = req.body;
   // .limit(1).offset(1) these are very useful things for my work
   // it helps me to make request on ads by where to where
@@ -17,8 +18,6 @@ const getAdshandler = (db, st) => (req, res) => {
   //     .then((response) => res.json(response));
   // };
 
-  const { lat, keyword, subcatogery, long, r, offset } = req.body;
-
   db("archive")
     .select(
       "title",
@@ -34,15 +33,18 @@ const getAdshandler = (db, st) => (req, res) => {
     .offset(offset)
     .orderBy("distanceAway")
     .where(st.dwithin("geo", st.geography(st.makePoint(lat, long)), r * 1000))
-    .andWhere("tags", "ilike", `%${keyword}%`)
-    .orWhere("title", "ilike", `%${keyword}%`)
-    .orWhere("description", "ilike", `%${keyword}%`)
+    // .where("title", "ilike", `%${keyword}%`)
+    .where((bd) => {
+    bd.orWhere("tags", "ilike", `%${keyword}%`).orWhere("title", "ilike", `%${keyword}%`)
+})
+    // .where("tags", "ilike", `%${keyword}%`)
+    // .orWhere("description", "ilike", `%${keyword}%`)
     .modify(function (queryBuilder) {
       if (subcatogery) {
         queryBuilder.andWhere("subcatogery", "=", subcatogery);
       }
     })
-    .then((response) => res.json(response));
+    .then((response) => res.json(response)).catch(err => res.status(500).json([]));
 };
 
 const GetChatsHandler = (db) => (req, res) => {

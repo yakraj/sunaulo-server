@@ -64,7 +64,7 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
   } = req.body;
   uniqadid = uniqid.process(seller + price);
 
-  console.log(thumbnail);
+  console.log(req.body);
 
   db.transaction((trx) =>
     trx
@@ -124,6 +124,7 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
         seller: seller,
         status: "active",
         mobile: mobile,
+        date: Date(),
       })
       .into("archive")
       .returning("supercatogery")

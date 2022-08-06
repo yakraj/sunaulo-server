@@ -118,7 +118,7 @@ const db = knex({
     password: "D@yl!g$t145%@",
     database: "sunaulo",
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 5000,
   },
 });
 
@@ -143,6 +143,7 @@ const db = knex({
 //   connection: KNEX_CON,
 // });
 
+// const st = knexPostgis(db);
 const st = knexPostgis(db);
 
 const app = express();
@@ -283,7 +284,7 @@ app.post(
   "/neplx/creating/new_post/new",
   creatspost.createNewPostHandler(db, uniqid, st)
 );
-app.post("/searh/get_ads", getads.getAdshandler(db, st));
+app.post("/search/get_ads", getads.getAdshandler(db, st));
 app.post(
   "/get_filter/filterads_keys/find/filter",
   filterKeys.getFilterKeysHandler(db)

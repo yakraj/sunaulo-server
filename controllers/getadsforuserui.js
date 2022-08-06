@@ -13,7 +13,10 @@ const getUiads = (db, st) => (req, res) => {
           "price",
           "supercatogery",
           "adid",
-          "seller"
+          "seller",
+          st
+        .distance("geo", st.geography(st.makePoint(lat, long)))
+        .as("distanceAway")
         )
         .offset(length)
         .where(
@@ -21,13 +24,14 @@ const getUiads = (db, st) => (req, res) => {
         )
         .limit(15)
         .from("archive")
-        .orderBy("id")
+        .orderBy("distanceAway")
         .then((response) => {
           res.json(response);
         })
         .catch((err) => res.status(404).json("unable"))
     : res.json("unable");
 };
+
 
 module.exports = {
   getUiads: getUiads,
