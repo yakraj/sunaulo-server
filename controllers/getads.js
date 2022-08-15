@@ -35,8 +35,12 @@ const getAdshandler = (db, st) => (req, res) => {
     .where(st.dwithin("geo", st.geography(st.makePoint(lat, long)), r * 1000))
     // .where("title", "ilike", `%${keyword}%`)
     .where((bd) => {
-    bd.orWhere("tags", "ilike", `%${keyword}%`).orWhere("title", "ilike", `%${keyword}%`)
-})
+      bd.orWhere("tags", "ilike", `%${keyword}%`).orWhere(
+        "title",
+        "ilike",
+        `%${keyword}%`
+      );
+    })
     // .where("tags", "ilike", `%${keyword}%`)
     // .orWhere("description", "ilike", `%${keyword}%`)
     .modify(function (queryBuilder) {
@@ -44,7 +48,8 @@ const getAdshandler = (db, st) => (req, res) => {
         queryBuilder.andWhere("subcatogery", "=", subcatogery);
       }
     })
-    .then((response) => res.json(response)).catch(err => res.status(500).json([]));
+    .then((response) => res.json(response))
+    .catch((err) => res.status(500).json([]));
 };
 
 const GetChatsHandler = (db) => (req, res) => {

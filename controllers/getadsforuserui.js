@@ -19,9 +19,6 @@ const getUiads = (db, st) => (req, res) => {
         .as("distanceAway")
         )
         .offset(length)
-        .where(
-          st.dwithin("geo", st.geography(st.makePoint(lat, long)), 50 * 1000)
-        )
         .limit(15)
         .from("archive")
         .orderBy("distanceAway")

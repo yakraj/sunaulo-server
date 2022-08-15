@@ -64,7 +64,7 @@ const ProductInfohandler = (db) => (req, res) => {
         .where("product_id", req.body.adid)
         .then((rese) => {
           FilterClean(rese[0]);
-          db.select("description")
+          db.select("description","date")
             .from("archive")
             .where("adid", req.body.adid)
             .then((data) => {
