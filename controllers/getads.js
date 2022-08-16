@@ -31,8 +31,9 @@ const getAdshandler = (db, st) => (req, res) => {
         .as("distanceAway")
     )
     .offset(offset)
+    .limit(15)
     .orderBy("distanceAway")
-    .where(st.dwithin("geo", st.geography(st.makePoint(lat, long)), r * 1000))
+    .where(st.dwithin("geo", st.geography(st.makePoint(lat, long)), 100 * 1000))
     // .where("title", "ilike", `%${keyword}%`)
     .where((bd) => {
       bd.orWhere("tags", "ilike", `%${keyword}%`).orWhere(
