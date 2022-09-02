@@ -219,13 +219,15 @@ app.get("/otp", (req, res) => {
 app.get(`/data/:id`, (req, res) => {
   db.select("*")
     .from(req.params.id)
-    .then((response) => res.json(response));
+    .then((response) => res.json(response))
+    .catch((err) => res.status(500).end());
 });
 
 app.get("/data", (req, res) => {
   db.select("*")
     .from("test")
-    .then((ress) => res.json(ress));
+    .then((ress) => res.json(ress))
+    .catch((err) => res.status(500).end());
 });
 
 // here it is
@@ -234,7 +236,7 @@ app.post(
   ProductThumbnail.single("fileData"),
   (req, res) => {
     console.log("request is reached to me");
-    res.json(req.file.filename);
+    res.json(req.file.filename).catch((err) => res.status(500).end());
   }
 );
 // here it is

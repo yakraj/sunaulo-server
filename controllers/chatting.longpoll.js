@@ -56,7 +56,8 @@ const getChats = (db) => (req, res) => {
     .then((response) => {
       response.map((res, i) => (newData = FilterClean(response[i])));
       res.json([chatid, response]);
-    });
+    })
+    .catch((err) => res.status(500).end());
 };
 
 const EmitChat = (chatid, db) => {

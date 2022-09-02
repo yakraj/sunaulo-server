@@ -36,8 +36,10 @@ const Productprofilehandler = (db) => (req, res) => {
                 response[0].seller,
                 response[0].mobile,
               ]);
-            });
-        });
+            })
+            .catch((err) => res.status(404).end());
+        })
+        .catch((err) => res.status(404).end());
     });
 };
 const ProductViwshandler = (db, req) => {
@@ -64,7 +66,7 @@ const ProductInfohandler = (db) => (req, res) => {
         .where("product_id", req.body.adid)
         .then((rese) => {
           FilterClean(rese[0]);
-          db.select("description","date")
+          db.select("description", "date")
             .from("archive")
             .where("adid", req.body.adid)
             .then((data) => {
@@ -77,8 +79,10 @@ const ProductInfohandler = (db) => (req, res) => {
                     .where("adid", req.body.adid)
                     .then((resloc) => {
                       res.json([rese[0], data[0], respon[0], resloc[0]]);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         });
     });

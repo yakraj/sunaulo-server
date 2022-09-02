@@ -1,5 +1,6 @@
 const getAdshandler = (db, st) => (req, res) => {
   const { lat, keyword, subcatogery, long, r, offset } = req.body;
+  console.log(lat, keyword, subcatogery, long, r, offset);
   // const { keyword, subcatogery, distance } = req.body;
   // .limit(1).offset(1) these are very useful things for my work
   // it helps me to make request on ads by where to where
@@ -31,7 +32,7 @@ const getAdshandler = (db, st) => (req, res) => {
         .as("distanceAway")
     )
     .offset(offset)
-    .limit(15)
+    .limit(10)
     .orderBy("distanceAway")
     .where(st.dwithin("geo", st.geography(st.makePoint(lat, long)), 100 * 1000))
     // .where("title", "ilike", `%${keyword}%`)
@@ -76,7 +77,8 @@ const GetChatsHandler = (db) => (req, res) => {
     .orWhere("ca.buyer", "=", userid)
     .then((response) => {
       res.json(response);
-    });
+    })
+    .catch((err) => res.status(500).end());
 
   // db.select(db.raw(`case when userid = '${userid}' then name else avatar end as user`)).from('userdetail').then((ress) =>res.json(ress))
   // db.select(db.raw(`case when seller = '${userid}' then 'buyer' else 'seller' end as user`)).from('chatarchive')

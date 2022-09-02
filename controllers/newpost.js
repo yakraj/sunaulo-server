@@ -161,8 +161,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "shopeoffice") {
           return trx("shopeoffice")
@@ -192,8 +194,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "landplot") {
           return trx("landplot")
@@ -218,8 +222,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "payingguesthouse") {
           return trx("payingguesthouse")
@@ -244,8 +250,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "roommate") {
           return trx("roommate")
@@ -271,8 +279,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "carvehicle") {
           return trx("carvehicle")
@@ -297,8 +307,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "sphareparts") {
           return trx("sphareparts")
@@ -319,8 +331,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "regular") {
           return trx("regular")
@@ -341,8 +355,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "jobs") {
           return trx("jobs")
@@ -363,8 +379,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "pclaptop") {
           return trx("pclaptop")
@@ -394,8 +412,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "cpu") {
           return trx("cpu")
@@ -422,8 +442,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "monitor") {
           return trx("monitor")
@@ -446,7 +468,8 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
+                    })
+                    .catch((err) => res.status(404).end());
                 });
             });
         } else if (ReturnSuper[0] === "withbrand") {
@@ -469,7 +492,8 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
+                    })
+                    .catch((err) => res.status(404).end());
                 });
             });
         } else if (ReturnSuper[0] === "tvs") {
@@ -492,7 +516,8 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
+                    })
+                    .catch((err) => res.status(404).end());
                 });
             });
         } else if (ReturnSuper[0] === "mobiletablet") {
@@ -522,7 +547,8 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
+                    })
+                    .catch((err) => res.status(404).end());
                 });
             });
         } else if (ReturnSuper[0] === "twowheeler") {
@@ -546,7 +572,8 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
+                    })
+                    .catch((err) => res.status(404).end());
                 });
             });
         } else if (ReturnSuper[0] === "books") {
@@ -568,8 +595,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else if (ReturnSuper[0] === "cloths") {
           return trx("cloths")
@@ -589,7 +618,8 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
+                    })
+                    .catch((err) => res.status(404).end());
                 });
             });
         } else if (ReturnSuper[0] === "pets") {
@@ -612,8 +642,10 @@ const createNewPostHandler = (db, uniqid, st) => (req, res) => {
                     })
                     .then((ress) => {
                       res.json(uniqadid);
-                    });
-                });
+                    })
+                    .catch((err) => res.status(404).end());
+                })
+                .catch((err) => res.status(404).end());
             });
         } else {
           res.json(uniqadid);
@@ -653,7 +685,7 @@ const DeletePostHandler = (db) => (req, res) => {
                     .where("seller", req.body.username)
                     .then((response) => res.json(response))
                     .catch((err) =>
-                      res.status(400).json("Im unable to get response.")
+                      res.status(404).json("Im unable to get response.")
                     );
                 });
             });

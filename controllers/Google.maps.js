@@ -12,7 +12,7 @@ const MapHandler = (db, client) => (req, res) => {
       res.json(r.data);
     })
     .catch((e) => {
-      res.status(501).json("unable to get any data");
+      res.status(404).json("unable to get any data");
     });
 };
 
@@ -30,7 +30,7 @@ const CreateLocation = (db, st) => (req, res) => {
           res.json(resp);
         });
     })
-    .catch((err) => res.status(400).json(err));
+    .catch((err) => res.status(404).json(err));
 };
 
 const Nearby = (db, st) => (req, res) => {
@@ -43,7 +43,8 @@ const Nearby = (db, st) => (req, res) => {
         .as("distanceAway")
     )
     .where(st.dwithin("geo", st.geography(st.makePoint(lat, long)), r * 1000))
-    .then((response) => res.json(response));
+    .then((response) => res.json(response))
+    .catch((err) => res.status(404).end());
 };
 
 const PlaceLatLong = (db, client) => (req, res) => {
@@ -62,7 +63,7 @@ const PlaceLatLong = (db, client) => (req, res) => {
       res.json(r.data);
     })
     .catch((e) => {
-      res.status(501).json("unable to get any data");
+      res.status(404).json("unable to get any data");
     });
 };
 
@@ -82,7 +83,7 @@ const LocationDetails = (db, client) => (req, res) => {
       res.json(r.data);
     })
     .catch((e) => {
-      res.status(501).json("unable to get any data");
+      res.status(404).json("unable to get any data");
     });
 };
 
@@ -104,7 +105,7 @@ const AutocompleteDtails = (db, client) => (req, res) => {
       res.json(r.data);
     })
     .catch((e) => {
-      res.status(501).json("unable to get any data");
+      res.status(404).json("unable to get any data");
     });
 };
 

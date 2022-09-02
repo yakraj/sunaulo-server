@@ -15,7 +15,8 @@ const UserGetlikehandler = (db) => (req, res) => {
       // res.json(findInc ? [findInc,response[0].likers.length-1] : [findInc, response[0].likers == null ? 1:response[0].likers.length+1])
 
       // res.json(response[0].likers == null || response[0].likers.length == 0 ? 0 : response[0].likers.length);
-    });
+    })
+    .catch((err) => res.status(404).end());
 };
 
 const ProductOnlyLikeHandler = (db) => (req, res) => {
@@ -28,7 +29,8 @@ const ProductOnlyLikeHandler = (db) => (req, res) => {
           ? 0
           : response[0].likers.length
       );
-    });
+    })
+    .catch((err) => res.status(404).end());
 };
 
 const Userlikeshandler = (db, req) => {
@@ -97,7 +99,8 @@ const ProductLikeHandler = (db) => (req, res) => {
             .where("adid", req.body.adid)
             .then((res) => {})
             .catch((err) => console.log(err));
-    });
+    })
+    .catch((err) => res.status(404).end());
 };
 
 module.exports = {

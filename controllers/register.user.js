@@ -43,12 +43,13 @@ const registerhandler = (db, uniqid, bcrypt) => (req, res) => {
                   .into("userlikes")
                   .then((response1) => {
                     db.insert({ username: UserName[0], hearts: null })
-                  .into("userfavourites")
-                  .then((response2) => {
-                    var name = ''
+                      .into("userfavourites")
+                      .then((response2) => {
+                        var name = "";
+                      });
                   });
-                  });
-              });
+              })
+              .catch((err) => res.status(404).end());
           });
       })
       .then(trx.commit)
