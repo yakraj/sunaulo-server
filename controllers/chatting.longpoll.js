@@ -24,7 +24,7 @@ function LoopDeleter() {
     deletefinder.map((x) => (pollContent = pollContent.filter((f) => f !== x)));
   setTimeout(() => {
     LoopDeleter();
-  }, 300000);
+  }, 50000);
 }
 LoopDeleter();
 
