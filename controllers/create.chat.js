@@ -1,6 +1,5 @@
 const createChathandler = (db, uniqid) => (req, res) => {
   const { adid, buyer, seller, lastchat } = req.body;
-  console.log(req.body);
   const uniqchat = uniqid.process(buyer + seller);
 
   db.transaction((trx) => {
@@ -16,8 +15,7 @@ const createChathandler = (db, uniqid) => (req, res) => {
       .into("chatarchive")
       .returning("chatid")
       .then((returned) => {
-        console.log(uniqchat);
-
+       
         return trx("chats")
           .insert({
             chatid: returned[0],
@@ -42,8 +40,7 @@ const createChathandler = (db, uniqid) => (req, res) => {
               .leftJoin("archive as a", function () {
                 this.on("a.adid", "ca.productid");
               })
-              .where("ca.seller", "=", buyer)
-              .orWhere("ca.buyer", "=", buyer)
+              .where("ca.chatid", uniqchat)
               .then((rese) => {
                 db.select("*")
                   .from("chats")
