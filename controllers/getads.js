@@ -65,6 +65,7 @@ const GetChatsHandler = (db) => (req, res) => {
     "ca.date",
     "ca.buyer",
     "ca.seller",
+    "ca.productid",
     // db.raw(`case when seller = '${userid}' then seller else buyer end as user`),
     "a.title",
     "a.thumbnail"

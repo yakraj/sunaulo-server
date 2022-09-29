@@ -1,4 +1,5 @@
 var pollContent = [];
+
 // var existingPool = pollContent.filter((x)=> Math.abs(new Date() - new Date(x.time)) > 5000)
 const exstfinder = () => {
   return pollContent.filter(
@@ -64,7 +65,6 @@ const EmitChat = (chatid, db) => {
   filterRes = pollContent.filter((x) => x.chatid === chatid);
   pollContent = pollContent.filter((x) => x.chatid !== chatid);
   // console.log(pollContent)
-  console.log(filterRes);
   for (let res of filterRes) {
     for (let ret of res.Res)
       db.select("*")
@@ -79,7 +79,7 @@ const EmitChat = (chatid, db) => {
 };
 
 const HandleMessage = (db, req, res) => {
-  const { chatid, user, deleter, text, location, images } = req.body;
+  const { chatid, user, deleter, text, location, images, date } = req.body;
   db("chats")
     .insert({
       chatid: chatid,
@@ -88,7 +88,7 @@ const HandleMessage = (db, req, res) => {
       text: text,
       location: location,
       images: images,
-      date: new Date(),
+      date: date,
     })
     .then((response) => response);
   EmitChat(chatid, db);
