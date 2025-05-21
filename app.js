@@ -297,7 +297,7 @@ app.post("/get/product/information", ProductInfo.ProductInfohandler(db));
 app.post("/create/chat", CreateChat.createChathandler(db, uniqid));
 // app.post('/update/product/views', ProductInfo.ProductViwshandler(db))
 app.post(
-  "/neplx/creating/new_post/new",
+  "/sunaulo/creating/new_post/new",
   creatspost.createNewPostHandler(db, uniqid, st)
 );
 app.post("/search/get_ads", getads.getAdshandler(db, st));
@@ -327,7 +327,7 @@ app.post("/getuiads", Uiads.getUiads(db, st));
 app.post("/transtry", TrxTry.CreateTrx(db));
 app.post("/chatdelete", chatsDel.deleteChatArchivehandler(db));
 app.post("/subcatogery", subcatogerySuggestion.SubCatogeryHandler(db));
-app.post("/user/neplx/chatt/getchats", getads.GetChatsHandler(db));
+app.post("/user/sunaulo/chatt/getchats", getads.GetChatsHandler(db));
 app.post("/chatuser", CreateChat.Chatuser(db));
 app.post("/numberexistanceverify", Signinuser.NumberValidateHandler(db));
 app.post("/delete/userad", creatspost.DeletePostHandler(db));
