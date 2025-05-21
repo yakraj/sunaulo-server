@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const axios = require("axios");
 const bodyParser = require("body-parser");
@@ -14,6 +16,7 @@ const uniqid = require("uniqid");
 const { Client } = require("@googlemaps/google-maps-services-js");
 const knexPostgis = require("knex-postgis");
 const multerGoogleStorage = require("multer-google-storage");
+const db = require("./config/db");
 // var unirest = require("unirest");
 
 // const socket = require('./controllers/sockettrial')
@@ -110,17 +113,17 @@ var regupload = multer({ storage: regstorage });
 var thumbupload = multer({ storage: thumbstorage });
 // var upload = multer({ dest: 'uploads/' });
 
-const db = knex({
-  client: "pg",
-  connection: {
-    host: "45.115.217.93",
-    user: "sunaulo",
-    password: "D@yl!g$t145%@",
-    database: "sunaulo",
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
-  },
-});
+// const db = knex({
+//   client: "pg",
+//   connection: {
+//     host: "45.115.217.93",
+//     user: "sunaulo",
+//     password: "D@yl!g$t145%@",
+//     database: "sunaulo",
+//     idleTimeoutMillis: 30000,
+//     connectionTimeoutMillis: 5000,
+//   },
+// });
 
 // const db = knex({
 //   client: "pg",
@@ -193,8 +196,19 @@ const Otpservice = require("./controllers/otp.verifier");
 //   };
 //   data.append("fileData", newFile);
 // });
-app.get("/", (req, res) => {
-  res.json("the application is working properly");
+app.get("/", async (req, res) => {
+  try {
+    // Try a simple query to test the connection
+    await db.raw("SELECT 1+1 AS result");
+    res.json({ status: "ok", message: "Database connection successful!" });
+  } catch (err) {
+    console.error("Database connection error:", err); // Print error to console
+    res.status(500).json({
+      status: "error",
+      message: "Database connection failed",
+      error: err.message,
+    });
+  }
 });
 
 app.get("/otp", (req, res) => {
