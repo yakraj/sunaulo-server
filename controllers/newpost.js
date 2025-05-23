@@ -21,6 +21,12 @@ const createPostHandler = (db, uniqid, st, b2Config) => async (req, res) => {
   const post_id = uniqid.process(user_id + Date.now()); // Generate unique post ID
   console.log("Generated post_id:", post_id);
 
+  // Function to sanitize filename
+  const sanitizeFilename = (filename) => {
+    // Remove spaces and special characters, keep only alphanumeric, dots, and hyphens
+    return filename.replace(/[^a-zA-Z0-9.-]/g, "-").toLowerCase();
+  };
+
   let uploadedImageUrls = [];
   const uploadedB2Keys = []; // To store B2 object keys for potential cleanup/deletion
 
@@ -32,8 +38,10 @@ const createPostHandler = (db, uniqid, st, b2Config) => async (req, res) => {
 
       const uploadPromises = files.map(async (file) => {
         console.log("Processing file:", file.originalname);
-        // Construct a unique key (path + filename) for the object in Backblaze B2
-        const b2Key = `${post_id}/${uniqid()}-${file.originalname}`; // e.g., post_id/uniqueid-image.jpg
+        // Generate a unique filename without folder structure and sanitize it
+        const uniqueId = uniqid();
+        const sanitizedFilename = sanitizeFilename(file.originalname);
+        const b2Key = `${uniqueId}-${sanitizedFilename}`; // e.g., uniqueid-image.jpg
         console.log("Generated B2 key:", b2Key);
 
         try {
@@ -72,30 +80,43 @@ const createPostHandler = (db, uniqid, st, b2Config) => async (req, res) => {
 
     // Start a database transaction to ensure atomicity
     const result = await db.transaction(async (trx) => {
+      // Validate required fields
+      if (!user_id) {
+        throw new Error("user_id is required");
+      }
+
+      // Prepare the post data
+      const postData = {
+        post_id,
+        user_id,
+        post_description: post_description || "",
+        description_devanagari: description_devanagari || "",
+        price: price || 0,
+        post_status: "active",
+        date_posted: new Date(),
+        likes: 0,
+        views: 0,
+        images: uploadedImageUrls,
+        category_id: category_id || null,
+        is_featured: false,
+        updated_at: new Date(),
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Post expires in 30 days
+        contact_info: contact_info || "",
+        tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
+        condition: condition || "new",
+        negotiable: negotiable || false,
+      };
+
+      // Only add geolocation if both latitude and longitude are provided
+      if (latitude && longitude) {
+        postData.geoloc = st.geomFromText(
+          `Point(${longitude} ${latitude})`,
+          4326
+        );
+      }
+
       // Insert new post data into the 'posts' table
-      const [post] = await trx("posts")
-        .insert({
-          post_id,
-          user_id,
-          post_description,
-          description_devanagari,
-          price,
-          post_status: "active",
-          date_posted: new Date(),
-          likes: 0,
-          views: 0,
-          images: uploadedImageUrls, // Store the CDN URLs of the uploaded images
-          geoloc: st.geomFromText(`Point(${longitude} ${latitude})`, 4326),
-          category_id,
-          is_featured: false,
-          updated_at: new Date(),
-          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Post expires in 30 days
-          contact_info,
-          tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
-          condition,
-          negotiable,
-        })
-        .returning("*"); // Return the inserted post record
+      const [post] = await trx("posts").insert(postData).returning("*"); // Return the inserted post record
 
       // Create associated entries in 'productviews' and 'productlike' tables
       await trx("productviews").insert({ adid: post_id });

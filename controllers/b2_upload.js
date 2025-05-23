@@ -36,7 +36,7 @@ class B2Config {
     try {
       validateEnvVariables();
 
-      console.log("Initializing B2 configuration...");
+      // console.log("Initializing B2 configuration...");
       // Get authorization token
       const authResponse = await axios.get(
         "https://api.backblazeb2.com/b2api/v2/b2_authorize_account",
@@ -48,11 +48,11 @@ class B2Config {
         }
       );
 
-      console.log("Got authorization response:", {
-        apiUrl: authResponse.data.apiUrl,
-        downloadUrl: authResponse.data.downloadUrl,
-        allowed: authResponse.data.allowed,
-      });
+      // console.log("Got authorization response:", {
+      //   apiUrl: authResponse.data.apiUrl,
+      //   downloadUrl: authResponse.data.downloadUrl,
+      //   allowed: authResponse.data.allowed,
+      // });
 
       // Get bucket ID
       const bucketResponse = await axios.get(
@@ -63,7 +63,7 @@ class B2Config {
         }
       );
 
-      console.log("Got bucket list response:", bucketResponse.data);
+      // console.log("Got bucket list response:", bucketResponse.data);
 
       const bucket = bucketResponse.data.buckets.find(
         (b) => b.bucketName === process.env.BACKBLAZE_B2_BUCKET_NAME
@@ -87,11 +87,11 @@ class B2Config {
         accountId: authResponse.data.accountId,
       };
 
-      console.log("B2 configuration initialized successfully:", {
-        apiUrl: this.config.apiUrl,
-        bucketId: this.config.bucketId,
-        accountId: this.config.accountId,
-      });
+      // console.log("B2 configuration initialized successfully:", {
+      //   apiUrl: this.config.apiUrl,
+      //   bucketId: this.config.bucketId,
+      //   accountId: this.config.accountId,
+      // });
       return this.config;
     } catch (error) {
       console.error("Failed to initialize B2 configuration:", {
