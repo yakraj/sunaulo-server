@@ -1,7 +1,7 @@
 // new_post.js
-const { uploadFileToB2, deleteFileFromB2 } = require('./b2_upload'); // Import B2 helper functions
+const { uploadFileToB2, deleteFileFromB2 } = require("./b2_upload"); // Import B2 helper functions
 
-const createPostHandler = (db, uniqid, st, b2S3Client) => async (req, res) => {
+const createPostHandler = (db, uniqid, st, b2Config) => async (req, res) => {
   const {
     user_id,
     post_description,
@@ -15,38 +15,59 @@ const createPostHandler = (db, uniqid, st, b2S3Client) => async (req, res) => {
     latitude,
     longitude,
   } = req.body;
-
   const files = req.files; // Files parsed by multer middleware
+  console.log("Files received:", files ? files.length : 0, "files");
 
   const post_id = uniqid.process(user_id + Date.now()); // Generate unique post ID
+  console.log("Generated post_id:", post_id);
 
   let uploadedImageUrls = [];
   const uploadedB2Keys = []; // To store B2 object keys for potential cleanup/deletion
 
   try {
     if (files && files.length > 0) {
+      console.log("Starting file upload process...");
+      // Ensure B2 config is initialized
+      const b2ConfigInstance = await b2Config.initialize();
+
       const uploadPromises = files.map(async (file) => {
+        console.log("Processing file:", file.originalname);
         // Construct a unique key (path + filename) for the object in Backblaze B2
         const b2Key = `${post_id}/${uniqid()}-${file.originalname}`; // e.g., post_id/uniqueid-image.jpg
+        console.log("Generated B2 key:", b2Key);
 
-        // Upload the file to Backblaze B2 using the helper function
-        await uploadFileToB2(
-          b2S3Client, // Pass the b2S3Client instance received from app.js
-          process.env.BACKBLAZE_B2_BUCKET_NAME,
-          b2Key,
-          file.buffer,
-          file.mimetype
-        );
+        try {
+          // Upload the file to Backblaze B2 using the helper function
+          await uploadFileToB2(
+            b2ConfigInstance,
+            process.env.BACKBLAZE_B2_BUCKET_NAME,
+            b2Key,
+            file.buffer,
+            file.mimetype
+          );
+          console.log("Successfully uploaded to B2:", file.originalname);
 
-        // Construct the public CDN URL for the uploaded image
-        // This relies on your Cloudflare CDN setup (CNAME, Transform Rule/Page Rule)
-        const cdnUrl = `${process.env.CLOUDFLARE_CDN_DOMAIN}/${b2Key}`;
-        uploadedImageUrls.push(cdnUrl);
-        uploadedB2Keys.push(b2Key); // Store the B2 key for later reference (e.g., deletion)
-        return cdnUrl;
+          // Construct the public CDN URL for the uploaded image
+          const cdnUrl = `${process.env.CLOUDFLARE_CDN_DOMAIN}/${b2Key}`;
+          console.log("Generated CDN URL:", cdnUrl);
+          uploadedImageUrls.push(cdnUrl);
+          uploadedB2Keys.push(b2Key);
+          return cdnUrl;
+        } catch (uploadError) {
+          console.error(
+            "Error uploading file to B2:",
+            file.originalname,
+            uploadError
+          );
+          throw uploadError;
+        }
       });
 
+      console.log("Waiting for all uploads to complete...");
       await Promise.all(uploadPromises); // Wait for all image uploads to complete
+      console.log("All files uploaded successfully");
+    } else {
+      console.log("No files to upload");
     }
 
     // Start a database transaction to ensure atomicity
@@ -86,7 +107,8 @@ const createPostHandler = (db, uniqid, st, b2S3Client) => async (req, res) => {
     res.json({
       success: true,
       post: result,
-      message: "Post created successfully with images uploaded to Backblaze B2 and served via Cloudflare CDN.",
+      message:
+        "Post created successfully with images uploaded to Backblaze B2 and served via Cloudflare CDN.",
     });
   } catch (err) {
     console.error("Error creating post:", err);
@@ -94,11 +116,19 @@ const createPostHandler = (db, uniqid, st, b2S3Client) => async (req, res) => {
     // If an error occurs during post creation (e.g., DB error),
     // attempt to clean up any images that were already uploaded to Backblaze B2.
     if (uploadedB2Keys.length > 0) {
-      console.warn('Attempting to clean up orphaned images from Backblaze B2 due to post creation failure.');
-      await Promise.allSettled(uploadedB2Keys.map(async (b2Key) => {
-        // Use the delete helper function
-        await deleteFileFromB2(b2S3Client, process.env.BACKBLAZE_B2_BUCKET_NAME, b2Key);
-      }));
+      console.warn(
+        "Attempting to clean up orphaned images from Backblaze B2 due to post creation failure."
+      );
+      await Promise.allSettled(
+        uploadedB2Keys.map(async (b2Key) => {
+          // Use the delete helper function
+          await deleteFileFromB2(
+            b2Config.getConfig(),
+            process.env.BACKBLAZE_B2_BUCKET_NAME,
+            b2Key
+          );
+        })
+      );
     }
 
     res.status(500).json({
@@ -108,7 +138,7 @@ const createPostHandler = (db, uniqid, st, b2S3Client) => async (req, res) => {
   }
 };
 
-const deletePostHandler = (db, b2S3Client) => async (req, res) => {
+const deletePostHandler = (db, b2Config) => async (req, res) => {
   const { post_id, user_id } = req.body;
 
   try {
@@ -120,7 +150,9 @@ const deletePostHandler = (db, b2S3Client) => async (req, res) => {
         .select("images");
 
       if (!postToDelete) {
-        return res.status(404).json({ success: false, error: "Post not found or unauthorized." });
+        return res
+          .status(404)
+          .json({ success: false, error: "Post not found or unauthorized." });
       }
 
       const imageUrls = postToDelete.images || [];
@@ -130,15 +162,21 @@ const deletePostHandler = (db, b2S3Client) => async (req, res) => {
         const deletePromises = imageUrls.map(async (imageUrl) => {
           // Extract the B2 object key from the CDN URL
           // This assumes your CDN URL structure is like: CLOUDFLARE_CDN_DOMAIN/post_id/uniqueid-image.jpg
-          const urlParts = imageUrl.split('/');
-          const b2Key = urlParts.slice(3).join('/'); // Extracts everything after the domain/path
+          const urlParts = imageUrl.split("/");
+          const b2Key = urlParts.slice(3).join("/"); // Extracts everything after the domain/path
 
           if (!b2Key) {
-            console.warn(`Could not extract B2 key from URL: ${imageUrl}. Skipping deletion for this image.`);
+            console.warn(
+              `Could not extract B2 key from URL: ${imageUrl}. Skipping deletion for this image.`
+            );
             return; // Skip if key extraction fails
           }
           // Use the delete helper function
-          await deleteFileFromB2(b2S3Client, process.env.BACKBLAZE_B2_BUCKET_NAME, b2Key);
+          await deleteFileFromB2(
+            b2Config.getConfig(),
+            process.env.BACKBLAZE_B2_BUCKET_NAME,
+            b2Key
+          );
         });
         // Use Promise.allSettled to ensure all deletion attempts are made,
         // even if some fail, without stopping the transaction.
@@ -166,7 +204,8 @@ const deletePostHandler = (db, b2S3Client) => async (req, res) => {
 
     res.json({
       success: true,
-      message: "Post and associated images deleted successfully from database and Backblaze B2.",
+      message:
+        "Post and associated images deleted successfully from database and Backblaze B2.",
     });
   } catch (err) {
     console.error("Error deleting post:", err);

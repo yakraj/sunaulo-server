@@ -26,8 +26,11 @@ app.use(express.static(path.resolve("./public")));
 const client = new Client({});
 
 //it handles posts
-const { b2Config, uploadMiddleware } = require('./controllers/b2_upload'); // Import B2 client and Multer setup
-const { createPostHandler, deletePostHandler } = require('./controllers/newpost'); // Import post handlers
+const { b2Config, uploadMiddleware } = require("./controllers/b2_upload"); // Import B2 client and Multer setup
+const {
+  createPostHandler,
+  deletePostHandler,
+} = require("./controllers/newpost"); // Import post handlers
 
 //for user autocomplete search cache and autocomplete it will
 const searchHelp = require("./controllers/searchCache");
@@ -59,20 +62,17 @@ app.post("/resetpassword", Signinuser.resetPassword(db, bcrypt));
 
 // create a and delete post
 
-
-
-
 app.post(
-  '/create-post',
-  uploadMiddleware.array('images', 5), // 'images' is the expected field name from client's form data
-  // Pass necessary dependencies to the handler, including the b2S3Client from b2Config
-  createPostHandler(db, uniqid, st, b2Config.b2S3Client)
+  "/create-post",
+  uploadMiddleware.array("images", 5), // 'images' is the expected field name from client's form data
+  // Pass necessary dependencies to the handler, including the b2Config instance
+  createPostHandler(db, uniqid, st, b2Config)
 );
 
 app.post(
-  '/delete-post',
-  // Pass necessary dependencies to the handler, including the b2S3Client from b2Config
-  deletePostHandler(db, b2Config.b2S3Client)
+  "/delete-post",
+  // Pass necessary dependencies to the handler, including the b2Config instance
+  deletePostHandler(db, b2Config)
 );
 //caching search history and autocomplete
 // please activate it later ----important

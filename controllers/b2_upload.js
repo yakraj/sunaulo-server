@@ -1,93 +1,246 @@
 // b2_upload.js
-const { S3Client } = require('@aws-sdk/client-s3'); // AWS SDK S3 Client for B2 compatibility
-const multer = require('multer'); // Middleware for handling multipart/form-data
+const axios = require("axios");
+const multer = require("multer");
+const validateEnvVariables = () => {
+  const requiredVars = {
+    BACKBLAZE_B2_ACCOUNT_ID: process.env.BACKBLAZE_B2_ACCOUNT_ID,
+    BACKBLAZE_B2_APPLICATION_KEY: process.env.BACKBLAZE_B2_APPLICATION_KEY,
+    BACKBLAZE_B2_BUCKET_NAME: process.env.BACKBLAZE_B2_BUCKET_NAME,
+  };
 
+  const missingVars = Object.entries(requiredVars)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
 
-// --- Backblaze B2 S3-Compatible Client Configuration ---
-// This client is configured to interact with Backblaze B2's S3-compatible API.
-// Ensure your .env file has BACKBLAZE_B2_ACCOUNT_ID, BACKBLAZE_B2_APPLICATION_KEY, and BACKBLAZE_B2_REGION.
-const b2S3Client = new S3Client({
-  endpoint: `https://s3.${process.env.BACKBLAZE_B2_REGION}.backblazeb2.com`,  // Points to your B2 region's S3 endpoint
-  region: process.env.BACKBLAZE_B2_REGION, // Your Backblaze B2 region
-  credentials: {
-    accessKeyId: process.env.BACKBLAZE_B2_ACCOUNT_ID, // Your B2 Account ID
-    secretAccessKey: process.env.BACKBLAZE_B2_APPLICATION_KEY, // Your B2 Application Key
-  },
-  forcePathStyle: false, // Often not needed, but can be set to true for some S3-compatible services
+  if (missingVars.length > 0) {
+    throw new Error(
+      `Missing required environment variables: ${missingVars.join(", ")}`
+    );
+  }
+};
+class B2Config {
+  constructor() {
+    this.config = null;
+    this.initializing = false;
+  }
+
+  async initialize() {
+    if (this.config) return this.config;
+    if (this.initializing) {
+      // Wait for initialization to complete
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return this.initialize();
+    }
+
+    this.initializing = true;
+    try {
+      validateEnvVariables();
+
+      console.log("Initializing B2 configuration...");
+      // Get authorization token
+      const authResponse = await axios.get(
+        "https://api.backblazeb2.com/b2api/v2/b2_authorize_account",
+        {
+          auth: {
+            username: process.env.BACKBLAZE_B2_ACCOUNT_ID,
+            password: process.env.BACKBLAZE_B2_APPLICATION_KEY,
+          },
+        }
+      );
+
+      console.log("Got authorization response:", {
+        apiUrl: authResponse.data.apiUrl,
+        downloadUrl: authResponse.data.downloadUrl,
+        allowed: authResponse.data.allowed,
+      });
+
+      // Get bucket ID
+      const bucketResponse = await axios.get(
+        `${authResponse.data.apiUrl}/b2api/v2/b2_list_buckets`,
+        {
+          headers: { Authorization: authResponse.data.authorizationToken },
+          params: { accountId: authResponse.data.accountId },
+        }
+      );
+
+      console.log("Got bucket list response:", bucketResponse.data);
+
+      const bucket = bucketResponse.data.buckets.find(
+        (b) => b.bucketName === process.env.BACKBLAZE_B2_BUCKET_NAME
+      );
+
+      if (!bucket) {
+        throw new Error(
+          `Bucket ${
+            process.env.BACKBLAZE_B2_BUCKET_NAME
+          } not found. Available buckets: ${bucketResponse.data.buckets
+            .map((b) => b.bucketName)
+            .join(", ")}`
+        );
+      }
+
+      this.config = {
+        apiUrl: authResponse.data.apiUrl,
+        authorizationToken: authResponse.data.authorizationToken,
+        downloadUrl: authResponse.data.downloadUrl,
+        bucketId: bucket.bucketId,
+        accountId: authResponse.data.accountId,
+      };
+
+      console.log("B2 configuration initialized successfully:", {
+        apiUrl: this.config.apiUrl,
+        bucketId: this.config.bucketId,
+        accountId: this.config.accountId,
+      });
+      return this.config;
+    } catch (error) {
+      console.error("Failed to initialize B2 configuration:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        config: {
+          accountId: process.env.BACKBLAZE_B2_ACCOUNT_ID,
+          bucketName: process.env.BACKBLAZE_B2_BUCKET_NAME,
+          hasAppKey: !!process.env.BACKBLAZE_B2_APPLICATION_KEY,
+        },
+      });
+      throw error;
+    } finally {
+      this.initializing = false;
+    }
+  }
+
+  getConfig() {
+    if (!this.config) {
+      throw new Error(
+        "B2 configuration not initialized. Call initialize() first."
+      );
+    }
+    return this.config;
+  }
+}
+
+// Create singleton instance
+const b2ConfigInstance = new B2Config();
+
+// Initialize immediately
+b2ConfigInstance.initialize().catch((error) => {
+  console.error("Initial B2 initialization failed:", error);
 });
 
-// --- Multer Configuration ---
-// Multer is configured to store uploaded files in memory as a Buffer.
-// This allows us to directly stream the buffer to Backblaze B2.
+// Validate environment variables
+
+// Configure multer for file uploads
 const uploadMiddleware = multer({
-  storage: multer.memoryStorage(), // Store file data in memory
+  storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // Limit file size to 10MB (adjust as needed)
+    fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
-    // Basic validation: only allow image files
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true); // Accept the file
+    console.log("Processing file:", {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+    });
+
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed!'), false); // Reject the file
+      cb(new Error("Only image files are allowed!"), false);
     }
   },
 });
 
-// Helper functions for direct B2 interaction (moved from previous upload_s3.js)
-const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
-
 /**
- * Uploads a file buffer to a specified Backblaze B2 bucket.
- * @param {S3Client} client - The S3Client instance configured for Backblaze B2.
- * @param {string} bucketName - The name of the Backblaze B2 bucket.
- * @param {string} key - The desired object key (path and filename) in the bucket.
- * @param {Buffer} fileBuffer - The file content as a Buffer.
- * @param {string} contentType - The MIME type of the file (e.g., 'image/jpeg').
- * @returns {Promise<void>} A promise that resolves when the upload is complete.
+ * Uploads a file to Backblaze B2
  */
-const uploadFileToB2 = async (client, bucketName, key, fileBuffer, contentType) => {
-  const uploadParams = {
-    Bucket: bucketName,
-    Key: key,
-    Body: fileBuffer,
-    ContentType: contentType,
-  };
+const uploadFileToB2 = async (
+  b2Config,
+  bucketName,
+  key,
+  fileBuffer,
+  contentType
+) => {
+  console.log("Attempting to upload file:", {
+    bucketName,
+    key,
+    contentType,
+    bufferSize: fileBuffer.length,
+  });
+
   try {
-    await client.send(new PutObjectCommand(uploadParams));
-    console.log(`Successfully uploaded ${key} to Backblaze B2 bucket ${bucketName}`);
+    // Get upload URL
+    const uploadUrlResponse = await axios.get(
+      `${b2Config.apiUrl}/b2api/v2/b2_get_upload_url`,
+      {
+        params: { bucketId: b2Config.bucketId },
+        headers: { Authorization: b2Config.authorizationToken },
+      }
+    );
+
+    const { uploadUrl, authorizationToken } = uploadUrlResponse.data;
+
+    // Upload the file
+    const uploadResponse = await axios.post(uploadUrl, fileBuffer, {
+      headers: {
+        Authorization: authorizationToken,
+        "Content-Type": contentType,
+        "Content-Length": fileBuffer.length,
+        "X-Bz-File-Name": key,
+        "X-Bz-Content-Sha1": "do_not_verify",
+      },
+    });
+
+    console.log("B2 Upload Response:", uploadResponse.data);
+    return uploadResponse.data;
   } catch (error) {
-    console.error(`Error uploading ${key} to Backblaze B2:`, error);
-    throw new Error(`Failed to upload file to Backblaze B2: ${key}`);
+    console.error("B2 Upload Error:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
+    throw new Error(`Failed to upload file to Backblaze B2: ${error.message}`);
   }
 };
 
 /**
- * Deletes an object from a specified Backblaze B2 bucket.
- * @param {S3Client} client - The S3Client instance configured for Backblaze B2.
- * @param {string} bucketName - The name of the Backblaze B2 bucket.
- * @param {string} key - The object key (path and filename) to delete from the bucket.
- * @returns {Promise<void>} A promise that resolves when the deletion is complete.
+ * Deletes a file from Backblaze B2
  */
-const deleteFileFromB2 = async (client, bucketName, key) => {
-  const deleteParams = {
-    Bucket: bucketName,
-    Key: key,
-  };
+const deleteFileFromB2 = async (b2Config, bucketName, key) => {
+  console.log("Attempting to delete file:", {
+    bucketName,
+    key,
+  });
+
   try {
-    await client.send(new DeleteObjectCommand(deleteParams));
-    console.log(`Successfully deleted ${key} from Backblaze B2 bucket ${bucketName}`);
+    const response = await axios.post(
+      `${b2Config.apiUrl}/b2api/v2/b2_delete_file_version`,
+      {
+        fileName: key,
+        fileId: key, // You might need to store and retrieve the fileId separately
+      },
+      {
+        headers: { Authorization: b2Config.authorizationToken },
+      }
+    );
+
+    console.log("B2 Delete Response:", response.data);
+    return response.data;
   } catch (error) {
-    console.error(`Error deleting ${key} from Backblaze B2:`, error);
+    console.error("B2 Delete Error:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
+    throw new Error(
+      `Failed to delete file from Backblaze B2: ${error.message}`
+    );
   }
 };
-
 
 module.exports = {
-  b2Config: {
-    b2S3Client, // Export the configured S3Client instance
-  },
-  uploadMiddleware, // Export the configured Multer middleware
-  uploadFileToB2, // Export helper upload function
-  deleteFileFromB2, // Export helper delete function
+  b2Config: b2ConfigInstance,
+  uploadMiddleware,
+  uploadFileToB2,
+  deleteFileFromB2,
 };
