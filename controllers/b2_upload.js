@@ -213,11 +213,35 @@ const deleteFileFromB2 = async (b2Config, bucketName, key) => {
   });
 
   try {
+    // First, get the file info to get the fileId
+    const listFilesResponse = await axios.get(
+      `${b2Config.apiUrl}/b2api/v2/b2_list_file_names`,
+      {
+        headers: { Authorization: b2Config.authorizationToken },
+        params: {
+          bucketId: b2Config.bucketId,
+          prefix: key,
+          maxFileCount: 1,
+        },
+      }
+    );
+
+    if (
+      !listFilesResponse.data.files ||
+      listFilesResponse.data.files.length === 0
+    ) {
+      console.warn(`File not found in B2: ${key}`);
+      return;
+    }
+
+    const fileInfo = listFilesResponse.data.files[0];
+
+    // Now delete using the fileId
     const response = await axios.post(
       `${b2Config.apiUrl}/b2api/v2/b2_delete_file_version`,
       {
         fileName: key,
-        fileId: key, // You might need to store and retrieve the fileId separately
+        fileId: fileInfo.fileId,
       },
       {
         headers: { Authorization: b2Config.authorizationToken },

@@ -71,3 +71,29 @@ CREATE TABLE posts (
     stars_spent INT,
     created_by INT REFERENCES users(id)
   );
+
+CREATE TABLE productviews (
+  id SERIAL PRIMARY KEY,
+  adid VARCHAR(255) REFERENCES posts(post_id),
+  user_id INT REFERENCES users(id),
+  viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(adid, user_id) -- Prevent duplicate views from same user
+);
+
+CREATE TABLE productlikes (
+  id SERIAL PRIMARY KEY,
+  adid VARCHAR(255) REFERENCES posts(post_id),
+  user_id INT REFERENCES users(id),
+  liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(adid, user_id) -- Prevent duplicate likes from same user
+);
+
+-- Add indexes for better performance
+CREATE INDEX idx_productviews_adid ON productviews(adid);
+CREATE INDEX idx_productviews_user_id ON productviews(user_id);
+CREATE INDEX idx_productlikes_adid ON productlikes(adid);
+CREATE INDEX idx_productlikes_user_id ON productlikes(user_id);
+
+-- Add view count to posts table
+ALTER TABLE posts ADD COLUMN view_count INT DEFAULT 0;
+ALTER TABLE posts ADD COLUMN like_count INT DEFAULT 0;

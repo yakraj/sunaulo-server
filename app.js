@@ -32,7 +32,11 @@ const {
   deletePostHandler,
 } = require("./controllers/newpost"); // Import post handlers
 
+//this is for get post
+const getPosts = require("./controllers/get.posts");
+
 //for user autocomplete search cache and autocomplete it will
+
 const searchHelp = require("./controllers/searchCache");
 //Special user register and user sign and reset password handlers
 const regUser = require("./controllers/register.user");
@@ -48,9 +52,19 @@ app.get("/", async (req, res) => {
   res.json("server is running fine");
 });
 
-// here it is
+// endless get post.
+
+app.post("/get-posts", getPosts.getPosts(db, st));
+
+// it is for update userinfo
 app.post("/update/user/name", UpdateuserInfo.updateName(db, uniqid, bcrypt));
 app.post("/update/user/location", UpdateuserInfo.updateLocation(db));
+app.post(
+  "/update/user/avatar",
+  uploadMiddleware.single("file"), // Change from "avatar" to "file"
+  UpdateuserInfo.updateAvatar(db, b2Config)
+);
+app.post("/update/user/mobile", UpdateuserInfo.updateMobile(db));
 // app.post("/update/user/avatar", UpdateuserInfo.updateAvatar(db));
 //register and signin user handler..... it will handle all for user data.
 app.post("/registeruser", regUser.registerhandler(db, uniqid, bcrypt));
