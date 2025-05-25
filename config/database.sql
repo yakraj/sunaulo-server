@@ -1,6 +1,7 @@
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(100) UNIQUE NOT NULL,
+  userid VARCHAR(100) UNIQUE NOT NULL,
   email VARCHAR(255) UNIQUE,
   name VARCHAR(50),
   mobile VARCHAR(20) UNIQUE,
@@ -29,21 +30,21 @@ CREATE TABLE CREDIANTIALS (
 );
 CREATE TABLE messages (
   id SERIAL PRIMARY KEY,
-  sender_id INT NOT NULL REFERENCES users(id),
-  receiver_id INT NOT NULL REFERENCES users(id),
+  sender_id VARCHAR(100) NOT NULL REFERENCES users(username),
+  receiver_id VARCHAR(100) NOT NULL REFERENCES users(username),
   message TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  is_read BOOLEAN DEFAULT FALSE
-  is_edited:false,
-  is_deleted:false
+  is_read BOOLEAN DEFAULT FALSE,
+  is_edited BOOLEAN DEFAULT FALSE,
+  is_deleted BOOLEAN DEFAULT FALSE
 );
 
 
 CREATE TABLE posts (
   id SERIAL PRIMARY KEY,    
   post_id VARCHAR(255),
-  user_id INT REFERENCES users(id),
+  user_id VARCHAR(100) NOT NULL REFERENCES users(username),
   post_description TEXT,
   description_devanagari TEXT,
   price NUMERIC(12,2) NOT NULL,
@@ -60,22 +61,23 @@ CREATE TABLE posts (
   contact_info VARCHAR(255),
   tags TEXT[],
   condition VARCHAR(50),
-  negotiable BOOLEAN DEFAULT FALSE
+  negotiable BOOLEAN DEFAULT FALSE,
+  UNIQUE(adid, user_id) 
 );
 
   CREATE TABLE post_featured (
     id SERIAL PRIMARY KEY,
-    post_id INT REFERENCES posts(id),
+    post_id VARCHAR(255) REFERENCES posts(post_id),
     featured_from TIMESTAMP,
     featured_until TIMESTAMP,
     stars_spent INT,
-    created_by INT REFERENCES users(id)
+    created_by VARCHAR(100) REFERENCES users(username)
   );
 
 CREATE TABLE productviews (
   id SERIAL PRIMARY KEY,
   adid VARCHAR(255) REFERENCES posts(post_id),
-  user_id INT REFERENCES users(id),
+  user_id VARCHAR(100) REFERENCES users(username),
   viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(adid, user_id) -- Prevent duplicate views from same user
 );
@@ -83,7 +85,7 @@ CREATE TABLE productviews (
 CREATE TABLE productlikes (
   id SERIAL PRIMARY KEY,
   adid VARCHAR(255) REFERENCES posts(post_id),
-  user_id INT REFERENCES users(id),
+  user_id VARCHAR(100) REFERENCES users(username),
   liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(adid, user_id) -- Prevent duplicate likes from same user
 );
