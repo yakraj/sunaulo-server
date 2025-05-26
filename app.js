@@ -17,6 +17,7 @@ const { Client } = require("@googlemaps/google-maps-services-js");
 const knexPostgis = require("knex-postgis");
 const multerGoogleStorage = require("multer-google-storage");
 const db = require("./config/db");
+const setupSocketIO = require('./config/socket'); // We'll create this next
 const websocket = require("./config/websocket");
 
 const st = knexPostgis(db);
@@ -31,6 +32,7 @@ const io = socketio(server, {
 
 // Initialize websocket
 websocket(app, db, io);
+setupSocketIO(io);
 
 app.use(bodyParser.json());
 app.use(cors());
